@@ -38,9 +38,9 @@ class TokenAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         auth = get_authorization_header(request).split()
-        prefix = knox_settings.AUTH_HEADER_PREFIX.encode()
+        prefix = [prefix.encode().lower() for prefix in knox_settings.AUTH_HEADER_PREFIX]
 
-        if not auth or auth[0].lower() != prefix.lower():
+        if not auth or auth[0].lower() not in prefix:
             return None
         if len(auth) == 1:
             msg = _('Invalid token header. No credentials provided.')

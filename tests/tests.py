@@ -40,7 +40,7 @@ user_serializer_knox = knox_settings.defaults.copy()
 user_serializer_knox["USER_SERIALIZER"] = UserSerializer
 
 auth_header_prefix_knox = knox_settings.defaults.copy()
-auth_header_prefix_knox["AUTH_HEADER_PREFIX"] = 'Baerer'
+auth_header_prefix_knox["AUTH_HEADER_PREFIX"] = ('Token', 'JWT',)
 
 token_no_expiration_knox = knox_settings.defaults.copy()
 token_no_expiration_knox["TOKEN_TTL"] = None
@@ -313,17 +313,24 @@ class AuthTestCase(TestCase):
         with override_settings(REST_KNOX=auth_header_prefix_knox):
             reload_module(auth)
             instance, token = AuthToken.objects.create(user=self.user)
-            self.client.credentials(HTTP_AUTHORIZATION=('Token %s' % token))
+            self.client.credentials(HTTP_AUTHORIZATION=('Baerer %s' % token))
             failed_response = self.client.get(root_url)
             self.client.credentials(
                 HTTP_AUTHORIZATION=(
-                    'Baerer %s' % token
+                    'Token %s' % token
                 )
             )
             response = self.client.get(root_url)
+            self.client.credentials(
+                HTTP_AUTHORIZATION=(
+                        'JWT %s' % token
+                )
+            )
+            response_jwt = self.client.get(root_url)
         reload_module(auth)
         self.assertEqual(failed_response.status_code, 401)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_jwt.status_code, 200)
 
     def test_expiry_present_also_when_none(self):
         with override_settings(REST_KNOX=token_no_expiration_knox):

@@ -14,7 +14,7 @@ DEFAULTS = {
     'TOKEN_LIMIT_PER_USER': None,
     'AUTO_REFRESH': False,
     'MIN_REFRESH_INTERVAL': 60,
-    'AUTH_HEADER_PREFIX': 'Token',
+    'AUTH_HEADER_PREFIX': ('Token', 'JWT',),
 }
 
 IMPORT_STRINGS = {
